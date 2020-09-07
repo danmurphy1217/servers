@@ -8,10 +8,14 @@ const server = net.createServer((socket) => {
     socket.on("data", buffer => {
         const requestData = buffer.toString('utf-8')
         const requestParsed = parseRequest(requestData)
-
+        
         if (requestParsed.method == "GET"){
             if (fs.existsSync(`.${requestParsed.path}`)){
-                socket.write("HTTP/1.0 200 OK")
+                const fileContents = fs.readFileSync(`.${requestParsed.path}`, (err, contents) => {
+                    console.log(contents);
+                })
+                socket.write("HTTP/1.0 200 OK\n")            
+                socket.write(fileContents)
             }
             else {
                 socket.write("404 File Not Found.")
