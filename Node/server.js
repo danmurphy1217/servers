@@ -34,5 +34,5 @@ const parseRequest = (requestData) => {
     }
 }
 
-
-server.listen(8080, () => console.log("listening...."))
+const port = 8080
+server.listen(port, () => console.log(`listening on ${ port }`))
