@@ -35,4 +35,8 @@ To test **POST** requests, use the following:
     }
 
 # Extensions
-This server can be modified further to handle specific requests in specific ways. For example, we can allow and disallow certain requests for resources based on headers and where the request originates from. We can also build a more robust `POST` request handler.**** 
+This server can be modified further to handle specific requests in specific ways. For example, we can allow and disallow certain requests for resources based on headers and where the request originates from. We can also build a more robust `POST` request handler.****
+
+# Updates
+This server can now take relative file paths, search for them, and, if they exist, return their contents.
+This functionality largely relies on `os.path.exists()`

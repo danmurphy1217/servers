@@ -1,8 +1,8 @@
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import time, datetime, json, cgi, cgitb, os
 
-path = os.path.dirname(__file__)
-log_path = os.path.join( path, "Logs/" )
+full_path = os.path.dirname(__file__)
+log_path = os.path.join( full_path, "Logs/" )
 # creates detailed reports of errors
 cgitb.enable( display = 0, logdir = log_path )
 
@@ -24,6 +24,15 @@ class Server( BaseHTTPRequestHandler ):
     def do_GET( self ):
         """Handle GET request."""
         self._set_headers()
+        
+        request_path = full_path + self.path 
+        if os.path.exists( request_path ):
+            with open( request_path, "r" ) as f:
+                print( f.read() )
+                f.close()
+        else:
+            print( full_path + self.path )
+            print( "Path: " + request_path )
         # opt + shift + down_arrow to copy highlighted line
         print( self.headers )
         self.wfile.write( json.dumps( { "status" : "200 OK", "message" : f"{ self.path }" }, indent=2 ).encode( 'utf-8' ) )
