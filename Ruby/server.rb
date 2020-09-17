@@ -33,10 +33,9 @@ to search for), version (HTTP version, 1.1 or 2)
         else
           puts "File does not exist."
         end
-      else if method.downcase == "post" || method.downcase == "put" || method.downcase == "delete" 
+      elsif method.downcase == "post" || method.downcase == "put" || method.downcase == "delete" 
         puts "I don't support #{ method } yet."
       end
-    end 
   end
 
 
