@@ -84,9 +84,9 @@ loop {
     request = client.readpartial(2048)
     # put response to parseRequest()
     data = parseRequest( request )
-    puts "METHOD: " + data.fetch( :method )
-    puts "PATH: " + data.fetch( :path )
-    puts "HTTP VERSION: " + data.fetch( :version )
+    puts ["METHOD: " + data.fetch( :method ),
+          "PATH: " + data.fetch( :path ),
+          "HTTP VERSION: " + data.fetch( :version )].map(&:to_s).join(', ')
     # put response to parseHeaders()
     puts parseHeaders( request )
 }
