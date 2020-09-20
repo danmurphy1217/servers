@@ -2,7 +2,7 @@
 # included above for shell execution
 
 require 'json';
-require 'Httparty';
+require 'httparty';
 require 'sqlite3'
 
 # a few constants...
@@ -19,6 +19,7 @@ it (such as authors, title, page count
 and more).
 =end
     response.each do |book|
+        p "Parsing Google Books response..."
         specifics = book['volumeInfo']
         final_specifics = check_nil( specifics )
         
@@ -70,12 +71,16 @@ end
 database_array = []
 
 params.each do |param|
+    p "Sending request for #{(param.split("+").join(" "))}"
     url = "https://www.googleapis.com/books/v1/volumes?q=#{param}"
     response = HTTParty.get(url)
     json_response = response.parsed_response['items']
-    database_array.push( handle_res( json_response ) )
+    json_response.each do |item|
+        database_array.push( handle_res( json_response ) )
+    end
 end
 
+p "Working with the db now..."
 
 def db_basics( db )
 =begin
@@ -93,7 +98,7 @@ sqlite3 database connection
         db.close if db
 end
 
-db_basics( db )
+# db_basics( db )
 
 class Database
     def __init__(db_name, data)
@@ -101,22 +106,43 @@ class Database
         @data = data
     end
     def insert
-        puts "I am a method for inserting data into tables in sqlite3."
-        puts "database name is: #@db_name"
-    end
+        # id 1 already exists in the db, so start here...
+        id = 0
+        @data.each do |obj|
+            db = SQLite3::Database.open "ruby.db"
+            id += 1
+            title = obj[0]
+            authors = obj[1]
+            publisher = obj[2]
+            description = obj[4].to_s.delete("'")
+            pg_count = obj[5].to_i
+            category = obj[6]
+            avg_rating = obj[7].to_f
 
+            p "Inserting Data"
+            db.execute "INSERT INTO Books (`id`, `Title`, `Authors`,`Publisher`, `Description`, `PageCount`, `Category`, `AvgRating` ) VALUES( #{id}, \"#{title}\", \"#{authors}\", \"#{publisher}\", \"#{description}\", #{pg_count}, \"#{category}\", #{avg_rating} )"
+        rescue SQLite3::Exception => e 
+            puts "Exception occurred"
+            puts e
+        ensure
+            db.close if db
+        end
+    end
+    
     def create
-        puts "I am a method for creating tables in sqlite3."
-        puts "data is: #@data"
+        db = SQLite3::Database.open "ruby.db"
+        db.execute "CREATE TABLE IF NOT EXISTS Books(
+                id INTEGER PRIMARY KEY, Title TEXT, Authors TEXT, Publisher TEXT, Description TEXT,
+                PageCount INTEGER, Category TEXT, AvgRating REAL)"
+        p "Tables created if it wasn't already."
     end
 
 end
 
-p database_array
-
 
 db = Database.new
 # init database here
-db.__init__("testdatabase1", "fake data")
+db.__init__("testdatabase1", database_array)
 # test reactive inputs
-puts db.insert, db.create
+db.create
+db.insert
